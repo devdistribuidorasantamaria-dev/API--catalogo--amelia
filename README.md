@@ -40,7 +40,7 @@ CREATE DATABASE amelia_boutique_test OWNER amelia ENCODING 'UTF8';  -- para los 
 | `secciones`       | Capítulos del catálogo. `orden` decide la posición.                                                          |
 | `prendas`         | `tallas` es `jsonb`. `precio_desde`/`precio_hasta` permiten valor único o rango. `seccion_id` nulo = sin sección. |
 | `prenda_imagenes` | `orden = 0` es la portada. Se borran en cascada con la prenda.                                                |
-| `ajustes`         | Clave/valor de textos editables: `subtitulo`, `whatsapp_numero`, `whatsapp_mensaje`.                           |
+| `ajustes`         | Clave/valor editable desde el panel: `subtitulo`, `whatsapp_numero`, `whatsapp_mensaje`, `logo_ruta`, `logo_ancho`, `logo_alto`. |
 
 Al borrar una sección sus prendas **no** se borran: quedan sin sección (`nullOnDelete`).
 
@@ -51,6 +51,9 @@ Al borrar una sección sus prendas **no** se borran: quedan sin sección (`nullO
 ```json
 {
   "subtitulo": "Colección · Santo Domingo, Ecuador",
+  "logo_url": "http://localhost:8000/storage/marca/ab12cd.png",
+  "logo_ancho": 472,
+  "logo_alto": 247,
   "whatsapp_url": "https://wa.me/593987654321?text=Hola…",
   "total_prendas": 6,
   "bloques": [
@@ -67,6 +70,19 @@ se dibuja sin encabezado. Cada prenda trae `precio_texto` ya formateado
 `GET /api/prendas/{slug}` — una prenda (404 si está oculta).
 
 CORS sólo permite el origen de `FRONTEND_URL` y métodos de lectura.
+
+## Logotipo de la cabecera
+
+Se sube en **Ajustes** del panel. `App\Services\Logotipo` guarda la ruta y las dimensiones
+en `ajustes` (`logo_ruta`, `logo_ancho`, `logo_alto`) y la API los expone como `logo_url`,
+`logo_ancho` y `logo_alto`.
+
+- `ImagenService::guardarLogo()` reencoda a **PNG conservando la transparencia** (el
+  catálogo es negro; el JPEG de las fotos rellena en blanco y arruinaría el logo) y
+  redimensiona a `config('amelia.logo_ancho_max')` (720 px, 2× del ancho de pantalla).
+- Vive en `storage/app/public/marca`. Al reemplazarlo se borra el archivo anterior.
+- La casilla «Quitar el logotipo» lo borra: `logo_url` vuelve a `null` y el frontend
+  escribe el nombre en Cormorant. Subir un archivo manda sobre la casilla.
 
 ## Botón de contacto (WhatsApp)
 

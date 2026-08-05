@@ -13,4 +13,7 @@ return [
     // Ancho máximo al que se redimensionan las fotos subidas.
     'imagen_ancho_max' => 1400,
 
+    // Ancho máximo del logotipo de la cabecera (se muestra a ~360px, 2x para retina).
+    'logo_ancho_max' => 720,
+
 ];

@@ -1,10 +1,37 @@
 <x-app-layout title="Ajustes" eyebrow="Panel" heading="Ajustes">
     <div class="max-w-xl">
-        <form method="POST" action="{{ route('admin.ajustes.update') }}" class="space-y-8">
+        <form method="POST" action="{{ route('admin.ajustes.update') }}" class="space-y-8"
+              enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
-            <div>
+            <div class="space-y-4">
+                <div>
+                    <x-input-label for="logo" value="Logotipo de la cabecera" />
+                    <p class="a-hint !mt-1">
+                        PNG con fondo transparente o negro, apaisado (el catálogo lo muestra a
+                        360&nbsp;px de ancho). Sin logotipo se escribe «Amelia · Boutique» en Cormorant.
+                    </p>
+                </div>
+
+                @if ($logoUrl)
+                    <div class="flex flex-wrap items-center gap-5 border border-line bg-black p-5">
+                        <img src="{{ $logoUrl }}" alt="Logotipo actual" class="h-16 w-auto" />
+                        <label class="flex items-center gap-2 text-[12px] text-muted">
+                            <input type="checkbox" name="eliminar_logo" value="1"
+                                   class="border-line bg-panel text-ink focus:ring-0" />
+                            Quitar el logotipo y volver al nombre en texto
+                        </label>
+                    </div>
+                @endif
+
+                <input id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/webp"
+                       class="a-input" />
+                <x-input-error :messages="$errors->get('logo')" />
+                <x-input-error :messages="$errors->get('eliminar_logo')" />
+            </div>
+
+            <div class="border-t border-line pt-8">
                 <x-input-label for="subtitulo" value="Subtítulo del catálogo" />
                 <x-text-input id="subtitulo" name="subtitulo" :value="old('subtitulo', $subtitulo)"
                               placeholder="Colección · Santo Domingo, Ecuador" />

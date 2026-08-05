@@ -8,11 +8,15 @@ use App\Models\Ajuste;
 use App\Models\Prenda;
 use App\Models\Seccion;
 use App\Services\ContactoWhatsapp;
+use App\Services\Logotipo;
 use Illuminate\Http\JsonResponse;
 
 class CatalogoApiController extends Controller
 {
-    public function __construct(private readonly ContactoWhatsapp $whatsapp) {}
+    public function __construct(
+        private readonly ContactoWhatsapp $whatsapp,
+        private readonly Logotipo $logotipo,
+    ) {}
 
     /**
      * Catálogo completo agrupado en bloques, en el orden en que se renderiza.
@@ -58,6 +62,10 @@ class CatalogoApiController extends Controller
 
         return response()->json([
             'subtitulo' => Ajuste::obtener('subtitulo', 'Colección · Santo Domingo, Ecuador'),
+            // null = no se subió logotipo; el frontend escribe el nombre en Cormorant.
+            'logo_url' => $this->logotipo->url(),
+            'logo_ancho' => $this->logotipo->ancho(),
+            'logo_alto' => $this->logotipo->alto(),
             // null cuando no hay número configurado: el frontend esconde el botón.
             'whatsapp_url' => $this->whatsapp->url(),
             // El número suelto permite al frontend armar mensajes propios

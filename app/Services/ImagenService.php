@@ -45,6 +45,45 @@ class ImagenService
         return $ruta;
     }
 
+    /**
+     * Guarda el logotipo en el disco 'public' como PNG, conservando la
+     * transparencia: el catálogo es negro, así que un fondo blanco (lo que hace
+     * `guardar()` al pasar a JPEG) arruinaría un logo recortado.
+     *
+     * @return array{ruta: string, ancho: int, alto: int} Dimensiones finales,
+     *                                                    para que el frontend
+     *                                                    reserve el espacio exacto.
+     */
+    public function guardarLogo(UploadedFile $archivo): array
+    {
+        $anchoMax = (int) config('amelia.logo_ancho_max', 720);
+        $origen = $this->cargar($archivo);
+
+        [$ancho, $alto] = [imagesx($origen), imagesy($origen)];
+        $escala = min(1, $anchoMax / max(1, $ancho));
+        $nuevoAncho = max(1, (int) round($ancho * $escala));
+        $nuevoAlto = max(1, (int) round($alto * $escala));
+
+        $destino = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
+        // Sin mezclar el alfa y guardándolo, el fondo transparente sobrevive al copiado.
+        imagealphablending($destino, false);
+        imagesavealpha($destino, true);
+        imagefill($destino, 0, 0, imagecolorallocatealpha($destino, 0, 0, 0, 127));
+        imagecopyresampled($destino, $origen, 0, 0, 0, 0, $nuevoAncho, $nuevoAlto, $ancho, $alto);
+        imagedestroy($origen);
+
+        $ruta = 'marca/'.Str::random(24).'.png';
+
+        ob_start();
+        imagepng($destino, null, 9);
+        $binario = ob_get_clean();
+        imagedestroy($destino);
+
+        Storage::disk('public')->put($ruta, $binario);
+
+        return ['ruta' => $ruta, 'ancho' => $nuevoAncho, 'alto' => $nuevoAlto];
+    }
+
     public function eliminar(?string $ruta): void
     {
         if (filled($ruta)) {
