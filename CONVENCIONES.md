@@ -31,6 +31,12 @@ Lee `README.md` para el arranque, el esquema y la forma de la API.
   Tras tocar CSS o Blade: `npm run build` y `php artisan view:clear`.
 - Evita glifos exóticos (`＋` fullwidth y similares) en las vistas: no están en todas las
   fuentes. Usa ASCII o flechas comunes.
+- Mensajes de validación en `lang/es/`. `APP_LOCALE=es`, así que sin ese directorio el
+  validador devuelve la clave cruda (`validation.required`). Los mensajes van con el
+  prefijo «El campo :attribute» para esquivar el género del español; el rótulo legible de
+  cada campo se declara en el `attributes()` de su FormRequest, no en `lang`.
+- Gráficas del panel: CSS y SVG en línea en `resources/views/components/analitica/`, sin
+  librería. Las series se distinguen por tono y textura, nunca por color.
 
 ## Tests
 
