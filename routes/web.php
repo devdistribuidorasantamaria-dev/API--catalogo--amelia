@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AjusteController;
+use App\Http\Controllers\Admin\AnaliticaController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PrendaController;
 use App\Http\Controllers\Admin\SeccionController;
@@ -23,6 +24,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('secciones', SeccionController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->parameters(['secciones' => 'seccion']);
+
+        Route::get('analitica', AnaliticaController::class)->name('analitica');
 
         Route::get('ajustes', [AjusteController::class, 'edit'])->name('ajustes.edit');
         Route::put('ajustes', [AjusteController::class, 'update'])->name('ajustes.update');

@@ -41,6 +41,7 @@ CREATE DATABASE amelia_boutique_test OWNER amelia ENCODING 'UTF8';  -- para los 
 | `prendas`         | `tallas` es `jsonb`. `precio_desde`/`precio_hasta` permiten valor único o rango. `seccion_id` nulo = sin sección. |
 | `prenda_imagenes` | `orden = 0` es la portada. Se borran en cascada con la prenda.                                                |
 | `ajustes`         | Clave/valor editable desde el panel: `subtitulo`, `whatsapp_numero`, `whatsapp_mensaje`, `logo_ruta`, `logo_ancho`, `logo_alto`. |
+| `eventos_analitica` | Eventos anónimos del catálogo: `tipo`, `prenda_id` (nulo en las visitas), `visitante_hash`, `creado_en`. |
 
 Al borrar una sección sus prendas **no** se borran: quedan sin sección (`nullOnDelete`).
 
@@ -69,7 +70,69 @@ se dibuja sin encabezado. Cada prenda trae `precio_texto` ya formateado
 
 `GET /api/prendas/{slug}` — una prenda (404 si está oculta).
 
-CORS sólo permite el origen de `FRONTEND_URL` y métodos de lectura.
+`POST /api/eventos` — ingesta de analítica, la única escritura de la API. Ver más abajo.
+
+CORS sólo permite el origen de `FRONTEND_URL`; los métodos son de lectura más el `POST`
+de analítica.
+
+## Analítica
+
+El catálogo registra tres eventos anónimos: `visita` (al abrir la portada), `agregar` y
+`consultar` (los dos botones de cada prenda). Se guardan por separado aunque el panel los
+sume como «selecciones», para poder desglosarlos más adelante sin perder el histórico.
+
+### Ingesta
+
+```
+POST /api/eventos
+tipo=visita
+tipo=agregar&prenda_id=12
+tipo=consultar&prenda_id=12
+```
+
+Responde **`204` siempre**, tanto si guarda como si descarta: el frontend dispara y se
+olvida. El cuerpo va en `application/x-www-form-urlencoded` porque es un tipo «simple»
+para CORS y evita un `OPTIONS` de preflight por cada evento. Lleva `throttle:60,1`.
+
+Valida que el tipo exista, que `agregar`/`consultar` traigan una prenda real y que
+`visita` **no** traiga ninguna.
+
+### Privacidad
+
+No se guarda IP, user-agent, cookie ni referente. `App\Services\RegistroAnalitica`:
+
+- **Descarta bots** por user-agent (buscadores, previsualizadores de enlaces, navegadores
+  automatizados, clientes de consola). Efecto colateral útil: Lighthouse y PageSpeed no
+  ensucian las cifras. Los agentes que podrían confundirse con un navegador real se exigen
+  con la barra del producto (`whatsapp/`, `java/`) para no descartar a quien abre el
+  catálogo desde el navegador embebido de esas apps.
+- **`visitante_hash`** es `hash_hmac('sha256', ip|user-agent|fecha, APP_KEY)`: irreversible
+  y con sal diaria, así que no permite volver a la IP ni seguir a nadie de un día para
+  otro. Sólo sirve para separar visitas únicas de recargas dentro del mismo día.
+
+### Panel
+
+`/admin/analitica`, con rango de 7, 30 o 90 días en la URL (`?dias=30`). Muestra visitas
+por día, selecciones por día, tasa de interés, ranking de las 10 prendas más seleccionadas
+y el reparto por tipo y por sección.
+
+Las gráficas se dibujan con CSS y SVG en línea, sin librería: el panel es monocromo y las
+series se distinguen por tono y textura (sólido = agregar, tramado = consultar), no por
+color. Están en `resources/views/components/analitica/`.
+
+Al borrar una prenda sus eventos **no** se borran: quedan con `prenda_id` nulo, así que
+salen del ranking pero siguen contando en los totales del periodo.
+
+### Datos de prueba
+
+```bash
+php artisan db:seed --class=AnaliticaDemoSeeder
+```
+
+90 días de visitas y selecciones simuladas, con tendencia creciente, curva semanal y unas
+pocas prendas acaparando el ranking. Es determinista (semilla fija): dos ejecuciones dan
+el mismo tablero. **Borra los eventos que haya** antes de generar los nuevos, se niega a
+correr en producción y pide confirmación si ya hay datos (`--force` se la salta).
 
 ## Logotipo de la cabecera
 

@@ -17,7 +17,9 @@ return [
 
     'paths' => ['api/*'],
 
-    'allowed_methods' => ['GET', 'HEAD', 'OPTIONS'],
+    // POST es sólo para /api/eventos (analítica): el catálogo se sigue leyendo
+    // con GET y no hay ningún otro endpoint de escritura.
+    'allowed_methods' => ['GET', 'HEAD', 'OPTIONS', 'POST'],
 
     // Sólo el frontend Next.js. La API es pública pero de lectura, así que no
     // hace falta abrirla a cualquier origen.

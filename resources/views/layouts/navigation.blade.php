@@ -3,6 +3,7 @@
         'admin.dashboard' => 'Resumen',
         'admin.prendas.index' => 'Prendas',
         'admin.secciones.index' => 'Secciones',
+        'admin.analitica' => 'Analítica',
         'admin.ajustes.edit' => 'Ajustes',
     ];
 

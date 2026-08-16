@@ -77,4 +77,60 @@
     .a-title {
         @apply font-serif text-3xl font-normal leading-none;
     }
+
+    /* --- Analítica -------------------------------------------------------
+       Las gráficas se dibujan con CSS y SVG en línea, sin librería: el panel
+       es monocromo y sólo hacen falta barras, una línea y un anillo. Las
+       series no se distinguen por color sino por tono y textura. */
+
+    .a-chart {
+        @apply relative w-full;
+    }
+
+    /* Filete de referencia al 0/25/50/75/100 % del máximo. */
+    .a-chart-guia {
+        @apply pointer-events-none absolute inset-x-0 block h-px bg-line;
+    }
+
+    .a-bar {
+        @apply block bg-[#d8d6d1] transition-colors;
+    }
+
+    .group:hover .a-bar {
+        @apply bg-ink;
+    }
+
+    /* Segunda serie de las barras apiladas: misma forma, textura distinta. */
+    .a-bar-trama {
+        background-color: transparent;
+        background-image: repeating-linear-gradient(
+            45deg,
+            theme('colors.muted') 0 2px,
+            transparent 2px 4px
+        );
+    }
+
+    .group:hover .a-bar-trama {
+        background-color: transparent;
+    }
+
+    .a-tooltip {
+        @apply pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden
+               -translate-x-1/2 whitespace-nowrap border border-line bg-panel px-2 py-1
+               text-[10px] uppercase tracking-label text-ink;
+    }
+
+    .group:hover .a-tooltip {
+        @apply block;
+    }
+
+    /* Muestra de la leyenda para las series discontinuas. */
+    .a-legend-punteada {
+        background-color: transparent !important;
+        background-image: repeating-linear-gradient(
+            to right,
+            theme('colors.muted') 0 4px,
+            transparent 4px 7px
+        );
+    }
 }

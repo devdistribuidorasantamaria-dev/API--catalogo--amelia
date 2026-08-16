@@ -11,7 +11,13 @@ Lee `README.md` para el arranque, el esquema y la forma de la API.
   rutas (`prendas`, `secciones`, `Prenda`, `Seccion`, `activa`, `orden`). Las APIs de
   Laravel quedan en inglés.
 - `Seccion` fija `$table = 'secciones'` a mano — Eloquent no deduce ese plural.
-- La API es **sólo lectura**. Nada de endpoints de escritura: el panel usa sesión (Breeze).
+- La API es **sólo lectura** para el catálogo: el panel usa sesión (Breeze). Única
+  excepción, `POST /api/eventos` (analítica): no lee nada, responde siempre `204`, lleva
+  `throttle:60,1` y sólo guarda tipo + prenda + marca de tiempo. Cualquier otro endpoint
+  de escritura va al panel, no aquí.
+- Analítica: nada de datos personales. `App\Services\RegistroAnalitica` descarta bots por
+  user-agent y guarda una huella con sal diaria (`visitante_hash`), nunca la IP ni el
+  user-agent en claro. Si agregas un evento nuevo, añádelo a `App\Enums\TipoEvento`.
 - Registro público deshabilitado a propósito (`routes/auth.php`). Cuentas por seeder/tinker.
 - Precios: `precio_desde` + `precio_hasta` nullable. Formatea siempre con
   `Prenda::precioTexto()`, no armes la cadena en la vista ni en el frontend.
