@@ -23,6 +23,9 @@ Lee `README.md` para el arranque, el esquema y la forma de la API.
   `Prenda::precioTexto()`, no armes la cadena en la vista ni en el frontend.
 - Fotos: pasan por `App\Services\ImagenService` (reencoda a JPEG, redimensiona, respeta
   EXIF). Nunca guardes el `UploadedFile` directo.
+- Redes sociales: las tres son fijas (`App\Enums\RedSocial`) y aquí sólo se guarda la
+  dirección; el logotipo es cosa del frontend (`IconoRed.tsx`). Si agregas una red, agrega
+  también su trazo allá o no se dibujará nada.
 - Todo cambio del catálogo debe llamar a `App\Services\Revalidador::avisar()` para que el
   frontend purgue su caché. Si agregas un controlador de escritura, inyéctalo.
 - Estilos del panel: paleta y primitivas (`.a-btn`, `.a-input`, `.a-label`, `.a-hint`,

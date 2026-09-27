@@ -9,6 +9,7 @@ use App\Models\Prenda;
 use App\Models\Seccion;
 use App\Services\ContactoWhatsapp;
 use App\Services\Logotipo;
+use App\Services\RedesSociales;
 use Illuminate\Http\JsonResponse;
 
 class CatalogoApiController extends Controller
@@ -16,6 +17,7 @@ class CatalogoApiController extends Controller
     public function __construct(
         private readonly ContactoWhatsapp $whatsapp,
         private readonly Logotipo $logotipo,
+        private readonly RedesSociales $redes,
     ) {}
 
     /**
@@ -71,6 +73,9 @@ class CatalogoApiController extends Controller
             // El número suelto permite al frontend armar mensajes propios
             // (consultar una prenda, consultar el carrito).
             'whatsapp_numero' => $this->whatsapp->numero(),
+            // Sólo las redes con dirección guardada: el pie del catálogo pinta
+            // el logotipo de cada una de esta lista y nada más.
+            'redes' => $this->redes->lista(),
             'total_prendas' => $prendas->count(),
             'bloques' => $bloques,
         ]);

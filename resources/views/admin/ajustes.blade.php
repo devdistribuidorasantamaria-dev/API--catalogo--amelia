@@ -78,6 +78,37 @@
                 @endif
             </div>
 
+
+            <div class="space-y-5 border-t border-line pt-8">
+                <div>
+                    <span class="a-eyebrow">Redes sociales</span>
+                    <p class="a-hint !mt-2">
+                        Aparecen en el pie del catálogo, con el logotipo de cada red.
+                        La que dejes vacía no se muestra. Puedes pegar el enlace completo
+                        del perfil, el dominio («instagram.com/ameliaboutique») o sólo el
+                        usuario («&#64;ameliaboutique»): se completa al guardar.
+                    </p>
+                </div>
+
+                @foreach ($redes as $red)
+                    <div>
+                        <x-input-label :for="'red_'.$red->value" :value="$red->rotulo()" />
+                        <x-text-input :id="'red_'.$red->value" :name="'redes['.$red->value.']'"
+                                      :value="old('redes.'.$red->value, $redesGuardadas[$red->value])"
+                                      :placeholder="$red->ejemplo()" inputmode="url"
+                                      autocomplete="off" autocapitalize="off" spellcheck="false" />
+                        @if ($redesGuardadas[$red->value])
+                            <p class="a-hint">
+                                Guardado:
+                                <a href="{{ $redesGuardadas[$red->value] }}" target="_blank" rel="noopener"
+                                   class="text-ink underline">abrir perfil &#8599;</a>
+                            </p>
+                        @endif
+                        <x-input-error :messages="$errors->get('redes.'.$red->value)" />
+                    </div>
+                @endforeach
+            </div>
+
             <div class="border-t border-line pt-6">
                 <x-primary-button>Guardar ajustes</x-primary-button>
             </div>

@@ -56,6 +56,9 @@ Al borrar una sección sus prendas **no** se borran: quedan sin sección (`nullO
   "logo_ancho": 472,
   "logo_alto": 247,
   "whatsapp_url": "https://wa.me/593987654321?text=Hola…",
+  "redes": [
+    { "red": "instagram", "nombre": "Instagram", "url": "https://instagram.com/ameliaboutique" }
+  ],
   "total_prendas": 6,
   "bloques": [
     { "seccion": null, "prendas": [] },
@@ -155,6 +158,21 @@ Se configura en **Ajustes** del panel. `App\Services\ContactoWhatsapp` arma el e
 - El número se guarda sólo con dígitos, en formato internacional (`593987654321`).
   `normalizarNumero()` acepta que se escriba con `+`, espacios o guiones.
 - Sin número configurado, `whatsapp_url` es `null` y el frontend esconde el botón.
+
+## Redes sociales
+
+También en **Ajustes**. Las redes son fijas (`App\Enums\RedSocial`: Facebook, Instagram y
+TikTok) y sólo se guarda la dirección, en `ajustes` (`red_facebook`, `red_instagram`,
+`red_tiktok`). **Los logotipos viven en el frontend**, no aquí: la API manda el
+identificador de la red y el catálogo pone la marca.
+
+- `normalizar()` acepta la URL completa, el dominio sin protocolo
+  (`instagram.com/amelia`) o sólo el usuario (`@amelia`), que completa con el dominio de
+  esa red (TikTok lleva la arroba en la ruta).
+- `App\Services\RedesSociales::lista()` devuelve **sólo** las que tienen dirección, en el
+  orden del enum: una red vacía no sale en `redes` y el pie del catálogo no la dibuja.
+- Para agregar una red hay que tocar las dos partes: el caso del enum aquí y su logotipo en
+  `src/components/IconoRed.tsx` del frontend.
 
 ## Fotos
 
